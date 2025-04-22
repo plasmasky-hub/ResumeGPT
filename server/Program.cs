@@ -8,6 +8,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 builder.Services.AddHttpClient<GptService>();
+builder.Services.AddCors(options => 
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+         
+    });
+});
 
 var app = builder.Build();
 
@@ -20,6 +31,8 @@ if (app.Environment.IsDevelopment())
 
 // app.UseHttpsRedirection();
 Console.WriteLine($"Environment: {builder.Environment.EnvironmentName}");
+
+app.UseCors("AllowFrontend");
 
 
 app.MapControllers();
