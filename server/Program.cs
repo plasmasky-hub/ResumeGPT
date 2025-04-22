@@ -1,3 +1,5 @@
+using resume_gpt.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
+builder.Services.AddHttpClient<GptService>();
 
 var app = builder.Build();
 
@@ -16,6 +19,8 @@ if (app.Environment.IsDevelopment())
 }
 
 // app.UseHttpsRedirection();
+Console.WriteLine($"Environment: {builder.Environment.EnvironmentName}");
+
 
 app.MapControllers();
 app.Run();
