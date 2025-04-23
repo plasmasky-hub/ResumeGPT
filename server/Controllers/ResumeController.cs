@@ -25,7 +25,14 @@ namespace resume_gpt.Controllers
 
             var result = await _gptService.AnalyzeResumeAsync(request.ResumeText);
 
-            return Ok(result);
+            if(result.Success)
+            {
+                return Ok(result);
+            }
+            else
+            {
+                return BadRequest(result.Message);
+            }
         }
     }
 }
