@@ -18,7 +18,7 @@ namespace resume_gpt.Services
             _apiKey = configuration["OpenAI:ApiKey"];
         }
 
-        public async Task<GptResponse> AnalyzeResumeAsync(string text)
+        public async Task<GptResponse<ResumeAnalysisResultDto>> AnalyzeResumeAsync(string text)
         {
             try
             {
@@ -28,7 +28,15 @@ namespace resume_gpt.Services
                     messages = new[] 
                     {
                         new { role = "system", content = "You are a professional HR, please analyze this resume and give useful suggestions."},
-                        new { role = "user", content = text},
+                        new { role = "user", content = 
+                            $"Please analyze the following resume and return the result as JSON like this:\n" +
+                            "{\n" +
+                            "\"summary\": \"...\",\n" +
+                            "\"strengths\": [\"...\", \"...\"],\n" +
+                            "\"weaknesses\": [\"...\", \"...\"],\n" +
+                            "\"suggestions\": [\"...\", \"...\"]\n" +
+                            $"}}\n\nResume content:\n{text}"
+                            },
                     }
                 };
 
@@ -45,7 +53,7 @@ namespace resume_gpt.Services
                 {
                     var error = jsonDoc.RootElement.GetProperty("error").GetProperty("message").GetString();
 
-                    return new GptResponse
+                    return new GptResponse<ResumeAnalysisResultDto>
                     {
                         Success= true,
                         Message= $"OpenAI error: {error}"
@@ -53,22 +61,37 @@ namespace resume_gpt.Services
                     };
                 }
 
-                var completion = jsonDoc.RootElement
+                var rawContent = jsonDoc.RootElement
                     .GetProperty("choices")[0]
                     .GetProperty("message")
                     .GetProperty("content")
                     .GetString();
 
-                return new GptResponse
+                var result = new GptResponse<ResumeAnalysisResultDto>
                 {
                     Success= true,
-                    Message= completion!
-
+                    Message= rawContent!
                 };
+
+                try 
+                {
+                    var dto = JsonSerializer.Deserialize<ResumeAnalysisResultDto>(rawContent!, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    result.Data = dto;
+                }
+                catch (JsonException ex)
+                {
+                    result.Message += $"\n(Warn: Failed to deserialize JSON into DTO: {ex.Message})";
+                }
+
+                return result;
             }
             catch(HttpRequestException httpEx)
             {
-                return new GptResponse
+                return new GptResponse<ResumeAnalysisResultDto>
                 {
                     Success= false,
                     Message= $"HTTP Error: {httpEx.Message}"
@@ -77,7 +100,7 @@ namespace resume_gpt.Services
             }
             catch(JsonException jsonEx)
             {
-                return new GptResponse
+                return new GptResponse<ResumeAnalysisResultDto>
                 {
                     Success= false,
                     Message= $"JSON Error: {jsonEx.Message}"
@@ -86,7 +109,7 @@ namespace resume_gpt.Services
             }
             catch(Exception ex)
             {
-                return new GptResponse
+                return new GptResponse<ResumeAnalysisResultDto>
                 {
                     Success= false,
                     Message= $"Unexpected Error: {ex.Message}"
