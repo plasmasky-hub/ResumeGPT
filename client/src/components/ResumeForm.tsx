@@ -40,41 +40,78 @@ const ResumeForm: React.FC = () => {
     }
 
     return (
-        <div>
-            <section>
-                <p>Input Area</p>
-                <form onSubmit={handleSubmit}>
+        <div className="flex flex-col md:flex-row w-full h-screen gap-4">
+            <section className="flex-1 flex flex-col gap-4 md:w-1/2 w-full md:max-w-[600px] min-w-[300px] max-h-[80vh] overflow-y-auto bg-white shadow rounded-xl p-4">
+                <h2 className=" text-2xl font-semibold text-gray-800">
+                    Input Your Resume
+                </h2>
+                <form
+                    onSubmit={handleSubmit}
+                    className=" flex flex-col flex-grow gap-4"
+                >
                     <textarea
                         value={value}
                         onChange={handleFormChange}
                         placeholder="Paste resume text here"
+                        className=" w-full  h-full p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                    <button type="submit" disabled={loading}>
-                        {loading ? "Loading" : "Submit"}
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className=" w-full self-start bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-60 cursor-pointer"
+                    >
+                        {loading ? "Analyzing..." : "Submit"}
                     </button>
                 </form>
             </section>
-            <section>
+            <section className="flex-1 md:w-1/2 w-full md:max-w-[600px] min-w-[300px] max-h-[80vh] overflow-y-auto bg-gray-50 shadow-inner rounded-xl p-4 ">
                 {error && <p style={{ color: "red" }}>{error}</p>}
                 {response && response.data && (
-                    <div>
-                        <h3>Analysis Result</h3>
-                        <p>
-                            <strong>Summary</strong>
-                        </p>
-                        <p>{response.data.summary}</p>
-                        <p>
-                            <strong>Strengths</strong>
-                        </p>
-                        <p>{response.data.strengths}</p>
-                        <p>
-                            <strong>Weaknesses</strong>
-                        </p>
-                        <p>{response.data.weaknesses}</p>
-                        <p>
-                            <strong>Suggestions</strong>
-                        </p>
-                        <p>{response.data.suggestions}</p>
+                    <div className="space-y-3 text-left">
+                        <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                            Analysis Result
+                        </h3>
+
+                        <div>
+                            <p className="font-semibold">Summary</p>
+                            <p className="whitespace-pre-wrap break-words text-gray-800">
+                                {response.data.summary}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p className="font-semibold">Strengths</p>
+                            <ul className="list-disc list-inside text-gray-800">
+                                {response.data.strengths?.map(
+                                    (strength, index) => (
+                                        <li key={index}>{strength}</li>
+                                    )
+                                )}
+                            </ul>
+                        </div>
+
+                        <div>
+                            <p className="font-semibold">Weaknesses</p>
+                            <ul className="list-disc list-inside text-gray-800">
+                                {response.data.weaknesses?.map(
+                                    (weakness, index) => (
+                                        <li key={index}>{weakness}</li>
+                                    )
+                                )}
+                            </ul>
+                        </div>
+
+                        <div>
+                            <p className="font-semibold">Suggestions</p>
+                            <ul className="list-disc list-inside text-gray-800">
+                                {response.data.suggestions?.map(
+                                    (suggestion, index) => (
+                                        <li key={index}>{suggestion}</li>
+                                    )
+                                )}
+                            </ul>
+                        </div>
                     </div>
                 )}
             </section>
