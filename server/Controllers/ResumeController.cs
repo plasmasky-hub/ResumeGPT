@@ -5,7 +5,7 @@ using resume_gpt.Services;
 namespace resume_gpt.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("resume")]
     public class ResumeController : ControllerBase
     {
         private readonly GptService _gptService;

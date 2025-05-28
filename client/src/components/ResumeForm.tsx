@@ -21,12 +21,10 @@ const ResumeForm: React.FC = () => {
         setResponse(null);
 
         try {
-            const res = await axios.post(
-                "http://localhost:5041/api/Resume/analyze",
-                {
-                    resumeText: value,
-                }
-            );
+            const serverUrl = import.meta.env.VITE_SERVER_URL;
+            const res = await axios.post(`${serverUrl}/resume/analyze`, {
+                resumeText: value,
+            });
 
             console.log("success, ", res.data);
 
