@@ -22,6 +22,8 @@ const ResumeForm: React.FC = () => {
 
         try {
             const serverUrl = import.meta.env.VITE_SERVER_URL;
+            console.log(import.meta.env);
+            console.log(serverUrl);
             const res = await axios.post(`${serverUrl}/resume/analyze`, {
                 resumeText: value,
             });
